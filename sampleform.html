@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sample Form</title>
+</head>
+<body>
+  <h2>Sample HTML Form</h2>
+  <form action="/submit" method="post">
+    <!-- Text Fields -->
+    <label for="fname">First Name:</label>
+    <input type="text" id="fname" name="first_name"><br><br>
+
+    <label for="lname">Last Name:</label>
+    <input type="text" id="lname" name="last_name"><br><br>
+
+    <!-- Radio Buttons -->
+    <p>Gender:</p>
+    <input type="radio" id="male" name="gender" value="male">
+    <label for="male">Male</label><br>
+
+    <input type="radio" id="female" name="gender" value="female">
+    <label for="female">Female</label><br><br>
+
+    <!-- Dropdown Menu -->
+    <label for="country">Country:</label>
+    <select id="country" name="country">
+      <option value="canada">Canada</option>
+      <option value="usa">USA</option>
+      <option value="uk">UK</option>
+    </select><br><br>
+
+    <input type="submit" value="Submit">
+  </form>
+    <div id="formOutput" class="result">
+        <h3>Form Data:</h3>
+        <pre id="outputData">No data yet</pre>
+    </div>
+    <script src="https://cdn.jsdelivr.net/gh/jatindersingh93/formCapture@main/FormCapture.js"></script>  
+
+ <script>
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');            
+            // Initialize FormCapture with custom configuration
+            FormCapture.init({
+                captureOnLoad: true,
+                captureOnChange: true,
+                onCapture: function(formsData) {
+                    // We get an array of form data, get the first one since we only have one form
+                    const formData = formsData[0];
+                    
+                    // Display captured data in the output div
+                    const outputElement = document.getElementById('outputData');
+                    if (outputElement) {
+                        outputElement.textContent = JSON.stringify(formData, null, 2);
+                    }
+                    
+                    // Also log to console as requested
+                    console.log('Form data captured:', formData);
+                }
+            });
+            
+            // Add form submit handler to prevent actual submission
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                // Use FormCapture to get the data
+                const formData = FormCapture.captureForm(this);
+                console.log('Form submitted - Final data:', formData);
+                
+                alert('Form submitted successfully!');
+            });
+            
+            // Add event listeners to form fields
+            function setupFieldListeners() {
+                const formFields = form.querySelectorAll('input, select');
+                formFields.forEach(field => {
+                    // Log when typing begins
+                    field.addEventListener('focus', function() {
+                        console.log(`User started interacting with field: ${field.name || field.id}`);
+                    });
+                    
+                    // Log when typing finishes (field loses focus)
+                    field.addEventListener('blur', function() {
+                        console.log(`User finished typing in field: ${field.name || field.id}`);
+                    });
+                    
+                    // Track input changes in real time
+                    field.addEventListener('input', function() {
+                        console.log(`Value changing in field ${field.name || field.id}: ${field.value}`);
+                    });
+                });
+            }
+            
+            // Set up listeners after form is created
+            setupFieldListeners();
+        });
+    </script>    
+</body>
+</html>
