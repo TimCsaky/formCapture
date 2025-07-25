@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Sample Form</title>
+  <title>AJAX Form Example</title>
 </head>
 <body>
-  <h2>Sample HTML Form</h2>
-  <form action="/submit" method="post">
+  <h2>Submit Form with JavaScript</h2>
+  <form id="sampleForm">
     <!-- Text Fields -->
     <label for="fname">First Name:</label>
     <input type="text" id="fname" name="first_name"><br><br>
@@ -29,17 +29,12 @@
       <option value="uk">UK</option>
     </select><br><br>
 
-    <input type="submit" value="Submit">
+    <button type="submit">Submit</button>
   </form>
-    <div id="formOutput" class="result">
-        <h3>Form Data:</h3>
-        <pre id="outputData">No data yet</pre>
-    </div>
-    
-    <!-- Include FormCapture library -->
-    <script src="https://cdn.jsdelivr.net/gh/jatindersingh93/formCapture@main/FormCapture.js"></script>
-    
-    <!-- Include our form handling script -->
-    <script src="sampleform.js"></script>
+
+  <p id="responseMessage"></p>
+
+  <!-- Include the external JavaScript file -->
+  <script src="sampleform.js"></script>
 </body>
 </html>
