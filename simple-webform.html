@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Web Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .radio-group {
+            margin: 10px 0;
+        }
+        .radio-option {
+            margin-right: 15px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simple Web Form</h1>
+    
+    <!-- Form will be dynamically inserted here -->
+    <div id="formContainer"></div>
+    
+    <div id="formOutput" class="result">
+        <h3>Form Data:</h3>
+        <pre id="outputData">No data yet</pre>
+    </div>
+    
+    <!-- Import local FormCapture.js -->
+    <script src="./FormCapture.js"></script>
+    
+    <script>
+        // Form configuration object - makes it easy to modify form structure
+        const formConfig = {
+            formId: "myForm",
+            formAttributes: {
+                "data-formcapture": "true",
+                "data-aif-formId": "simple-form"
+            },
+            fields: [
+                {
+                    type: "text",
+                    id: "firstName",
+                    name: "firstName",
+                    label: "First Name:",
+                    help: "Enter your legal first name"
+                },
+                {
+                    type: "text",
+                    id: "lastName",
+                    name: "lastName",
+                    label: "Last Name:",
+                    help: "Enter your legal last name"
+                },
+                {
+                    type: "text",
+                    id: "address",
+                    name: "address",
+                    label: "Address:",
+                    help: "Enter your current residential address"
+                },
+                {
+                    type: "radio",
+                    name: "contactMethod",
+                    label: "Preferred Contact Method:",
+                    options: [
+                        { value: "email", label: "Email", help: "We'll contact you via email" },
+                        { value: "phone", label: "Phone", help: "We'll contact you via phone" },
+                        { value: "mail", label: "Mail", help: "We'll contact you via postal mail" }
+                    ]
+                },
+                {
+                    type: "select",
+                    id: "province",
+                    name: "province",
+                    label: "Province:",
+                    help: "Select your province of residence",
+                    options: [
+                        { value: "", label: "-- Select Province --" },
+                        { value: "BC", label: "British Columbia" },
+                        { value: "AB", label: "Alberta" },
+                        { value: "SK", label: "Saskatchewan" },
+                        { value: "MB", label: "Manitoba" },
+                        { value: "ON", label: "Ontario" },
+                        { value: "QC", label: "Quebec" },
+                        { value: "NB", label: "New Brunswick" },
+                        { value: "NS", label: "Nova Scotia" },
+                        { value: "PE", label: "Prince Edward Island" },
+                        { value: "NL", label: "Newfoundland and Labrador" },
+                        { value: "YT", label: "Yukon" },
+                        { value: "NT", label: "Northwest Territories" },
+                        { value: "NU", label: "Nunavut" }
+                    ]
+                }
+            ]
+        };
+
+        // Function to dynamically generate the form
+        function createDynamicForm(config, container) {
+            // Create form element with attributes
+            const form = document.createElement('form');
+            form.id = config.formId;
+            
+            // Add form attributes
+            Object.entries(config.formAttributes).forEach(([key, value]) => {
+                form.setAttribute(key, value);
+            });
+            
+            // Create and add form fields
+            config.fields.forEach(field => {
+                const formGroup = document.createElement('div');
+                formGroup.className = 'form-group';
+                
+                // Create field label
+                const label = document.createElement('label');
+                if (field.id) label.setAttribute('for', field.id);
+                label.textContent = field.label;
+                formGroup.appendChild(label);
+                
+                // Variables used across switch cases
+                let input, radioGroup, select;
+                
+                // Create field based on type
+                switch (field.type) {
+                    case 'text':
+                        input = document.createElement('input');
+                        input.type = 'text';
+                        input.id = field.id;
+                        input.name = field.name;
+                        if (field.help) input.setAttribute('data-aif-help', field.help);
+                        formGroup.appendChild(input);
+                        break;
+                    
+                    case 'radio':
+                        radioGroup = document.createElement('div');
+                        radioGroup.className = 'radio-group';
+                        
+                        field.options.forEach(option => {
+                            const radioLabel = document.createElement('label');
+                            radioLabel.className = 'radio-option';
+                            
+                            const radioInput = document.createElement('input');
+                            radioInput.type = 'radio';
+                            radioInput.name = field.name;
+                            radioInput.value = option.value;
+                            if (option.help) radioInput.setAttribute('data-aif-help', option.help);
+                            
+                            radioLabel.appendChild(radioInput);
+                            radioLabel.appendChild(document.createTextNode(' ' + option.label));
+                            radioGroup.appendChild(radioLabel);
+                        });
+                        
+                        formGroup.appendChild(radioGroup);
+                        break;
+                    
+                    case 'select':
+                        select = document.createElement('select');
+                        select.id = field.id;
+                        select.name = field.name;
+                        if (field.help) select.setAttribute('data-aif-help', field.help);
+                        
+                        field.options.forEach(option => {
+                            const optionElement = document.createElement('option');
+                            optionElement.value = option.value;
+                            optionElement.textContent = option.label;
+                            select.appendChild(optionElement);
+                        });
+                        
+                        formGroup.appendChild(select);
+                        break;
+                }
+                
+                form.appendChild(formGroup);
+            });
+            
+            // Create submit button
+            const submitBtn = document.createElement('button');
+            submitBtn.type = 'submit';
+            submitBtn.textContent = 'Submit';
+            form.appendChild(submitBtn);
+            
+            // Append form to container
+            container.appendChild(form);
+            
+            return form;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the container element
+            const formContainer = document.getElementById('formContainer');
+            
+            // Create the dynamic form
+            const form = createDynamicForm(formConfig, formContainer);
+            console.log('Dynamic form created:', form.id);
+            
+            // Initialize FormCapture with custom configuration
+            FormCapture.init({
+                captureOnLoad: true,
+                captureOnChange: true,
+                onCapture: function(formsData) {
+                    // We get an array of form data, get the first one since we only have one form
+                    const formData = formsData[0];
+                    
+                    // Display captured data in the output div
+                    const outputElement = document.getElementById('outputData');
+                    if (outputElement) {
+                        outputElement.textContent = JSON.stringify(formData, null, 2);
+                    }
+                    
+                    // Also log to console as requested
+                    console.log('Form data captured:', formData);
+                }
+            });
+            
+            // Add form submit handler to prevent actual submission
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                // Use FormCapture to get the data
+                const formData = FormCapture.captureForm(this);
+                console.log('Form submitted - Final data:', formData);
+                
+                alert('Form submitted successfully!');
+            });
+            
+            // Add event listeners to form fields
+            function setupFieldListeners() {
+                const formFields = form.querySelectorAll('input, select');
+                formFields.forEach(field => {
+                    // Log when typing begins
+                    field.addEventListener('focus', function() {
+                        console.log(`User started interacting with field: ${field.name || field.id}`);
+                    });
+                    
+                    // Log when typing finishes (field loses focus)
+                    field.addEventListener('blur', function() {
+                        console.log(`User finished typing in field: ${field.name || field.id}`);
+                    });
+                    
+                    // Track input changes in real time
+                    field.addEventListener('input', function() {
+                        console.log(`Value changing in field ${field.name || field.id}: ${field.value}`);
+                    });
+                });
+            }
+            
+            // Set up listeners after form is created
+            setupFieldListeners();
+        });
+    </script>
+</body>
+</html>
