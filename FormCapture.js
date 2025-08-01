@@ -170,6 +170,68 @@
     },
 
     /**
+     * Get the label text for a form field
+     * @param {HTMLElement} field - The field element to find label for
+     * @returns {String} Label text or empty string if no label found
+     */
+    getFieldLabel: function(field) {
+      let labelText = '';
+      
+      // Method 1: Check if field has an ID and find corresponding label with 'for' attribute
+      if (field.id) {
+        const labelElement = document.querySelector(`label[for="${field.id}"]`);
+        if (labelElement) {
+          labelText = labelElement.textContent.trim();
+          return labelText;
+        }
+      }
+      
+      // Method 2: Check if field is wrapped in a label element
+      const parentLabel = field.closest('label');
+      if (parentLabel) {
+        // Clone the label to manipulate it without affecting the DOM
+        const labelClone = parentLabel.cloneNode(true);
+        // Remove the input element from the clone to get just the text
+        const inputInLabel = labelClone.querySelector('input, select, textarea, button');
+        if (inputInLabel) {
+          inputInLabel.remove();
+        }
+        labelText = labelClone.textContent.trim();
+        return labelText;
+      }
+      
+      // Method 3: Check for aria-label attribute
+      if (field.hasAttribute('aria-label')) {
+        labelText = field.getAttribute('aria-label').trim();
+        return labelText;
+      }
+      
+      // Method 4: Check for aria-labelledby attribute
+      if (field.hasAttribute('aria-labelledby')) {
+        const labelledById = field.getAttribute('aria-labelledby');
+        const referencedElement = document.getElementById(labelledById);
+        if (referencedElement) {
+          labelText = referencedElement.textContent.trim();
+          return labelText;
+        }
+      }
+      
+      // Method 5: Check for placeholder attribute as fallback
+      if (field.hasAttribute('placeholder')) {
+        labelText = field.getAttribute('placeholder').trim();
+        return labelText;
+      }
+      
+      // Method 6: Check for title attribute as last resort
+      if (field.hasAttribute('title')) {
+        labelText = field.getAttribute('title').trim();
+        return labelText;
+      }
+      
+      return labelText;
+    },
+
+    /**
      * Capture data from a specific form field
      * @param {HTMLElement} field - The field element to capture
      * @param {Number} fieldIndex - Index of the field in the form
@@ -179,6 +241,7 @@
       const fieldId = field.id || '';
       const fieldName = field.name || '';
       const fieldType = field.type || '';
+      const fieldLabel = this.getFieldLabel(field); // Add label capture
       
       // Handle special case for password fields
       if (fieldType === 'password' && !this.options.capturePasswordFields) {
@@ -227,6 +290,7 @@
         fieldName,
         fieldType,
         fieldValue,
+        fieldLabel, // Include the label in the returned data
         attributes: fieldAttributes,
         validation: validationState,
         domElement: field
