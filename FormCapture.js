@@ -39,6 +39,7 @@
 
       // Expose the capture method globally
       window.captureAllForms = () => this.captureAllForms();
+      window.captureSimplifiedData = () => this.captureSimplifiedData();
       
       console.log('FormCapture initialized');
       return this;
@@ -306,6 +307,43 @@
       const formData = new FormData(form);
       const serialized = new URLSearchParams(formData).toString();
       return serialized;
+    },
+
+    /**
+     * Extract simplified field data with only specific attributes
+     * @param {Array} fullFormData - The full form data array from captureAllForms()
+     * @returns {Array} Array of simplified field objects with only data-id, fieldType, fieldValue, fieldLabel
+     */
+    extractSimplifiedFields: function(fullFormData) {
+      const simplifiedData = [];
+      
+      fullFormData.forEach(formData => {
+        if (formData.fields && Array.isArray(formData.fields)) {
+          formData.fields.forEach(field => {
+            // Only process fields that have a data-id attribute
+            if (field.attributes && field.attributes['data-id']) {
+              const simplifiedField = {
+                'data-id': field.attributes['data-id'],
+                fieldType: field.fieldType,
+                fieldValue: field.fieldValue,
+                fieldLabel: field.fieldLabel
+              };
+              simplifiedData.push(simplifiedField);
+            }
+          });
+        }
+      });
+      
+      return simplifiedData;
+    },
+
+    /**
+     * Capture all forms and return only simplified field data
+     * @returns {Array} Array of simplified field objects with only data-id, fieldType, fieldValue, fieldLabel
+     */
+    captureSimplifiedData: function() {
+      const fullFormData = this.captureAllForms();
+      return this.extractSimplifiedFields(fullFormData);
     }
   };
 
