@@ -89,6 +89,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         });
+        const aiAgentSendButton = document.getElementById('ai-agent-send');     
+        if (aiAgentSendButton) {
+            aiAgentSendButton.addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent default button behavior
+                console.log('🤖 AI Agent Send button clicked');
+                
+                // Send form data to API when AI Agent button is pressed
+                sendFormDataToApi();
+                
+                // Optional: You can add specific AI agent functionality here
+                // For example, highlighting that this was triggered by AI agent
+                const responseMessage = document.getElementById("responseMessage");
+                if (responseMessage) {
+                    responseMessage.innerText = "AI Agent processing...";
+                }
+            });
+        } else {
+            console.warn('⚠️ AI Agent Send button (id: ai-agent-send) not found in DOM');
+        }           
     }
 
     // Function to collect form data and send to API
@@ -158,26 +177,26 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set up listeners after form is created
     setupFieldListeners();
     
-    // Add event listener for AI Agent Send button
-    const aiAgentSendButton = document.getElementById('ai-agent-send');
-    if (aiAgentSendButton) {
-        aiAgentSendButton.addEventListener('click', function(event) {
-            event.preventDefault(); // Prevent default button behavior
-            console.log('🤖 AI Agent Send button clicked');
+    // // Add event listener for AI Agent Send button
+    // const aiAgentSendButton = document.getElementById('ai-agent-send');
+    // if (aiAgentSendButton) {
+    //     aiAgentSendButton.addEventListener('click', function(event) {
+    //         event.preventDefault(); // Prevent default button behavior
+    //         console.log('🤖 AI Agent Send button clicked');
             
-            // Send form data to API when AI Agent button is pressed
-            sendFormDataToApi();
+    //         // Send form data to API when AI Agent button is pressed
+    //         sendFormDataToApi();
             
-            // Optional: You can add specific AI agent functionality here
-            // For example, highlighting that this was triggered by AI agent
-            const responseMessage = document.getElementById("responseMessage");
-            if (responseMessage) {
-                responseMessage.innerText = "AI Agent processing...";
-            }
-        });
-    } else {
-        console.warn('⚠️ AI Agent Send button (id: ai-agent-send) not found in DOM');
-    }
+    //         // Optional: You can add specific AI agent functionality here
+    //         // For example, highlighting that this was triggered by AI agent
+    //         const responseMessage = document.getElementById("responseMessage");
+    //         if (responseMessage) {
+    //             responseMessage.innerText = "AI Agent processing...";
+    //         }
+    //     });
+    // } else {
+    //     console.warn('⚠️ AI Agent Send button (id: ai-agent-send) not found in DOM');
+    // }
     
     // Add a demo function to show simplified data capture
     function demonstrateSimplifiedCapture() {
