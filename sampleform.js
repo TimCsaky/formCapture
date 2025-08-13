@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Log the initial simplified data on load
         setTimeout(() => {
             const initialSimplifiedData = captureSimplifiedData();
-            //console.log('🚀 Initial Simplified Data on Load:', initialSimplifiedData);
+            //console.log('Initial Simplified Data on Load:', initialSimplifiedData);
         }, 500);
     }
     
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
         //         // Capture and log simplified data on blur event
         //         if (typeof captureSimplifiedData !== 'undefined') {
         //             const simplifiedData = captureSimplifiedData();
-        //             //console.log('📝 Simplified Data on Blur:', simplifiedData);
+        //             //console.log('Simplified Data on Blur:', simplifiedData);
         //         }
                 
         //         // Get all form data and send to API when any field loses focus
@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
         //     });
         // });
         const aiAgentSendButton = document.getElementById('ai-agent-send');
-        console.log(aiAgentSendButton)     
+        console.log(aiAgentSendButton);
         if (aiAgentSendButton) {
             aiAgentSendButton.addEventListener('click', function(event) {
                 event.preventDefault(); // Prevent default button behavior
@@ -99,72 +99,61 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Send form data to API when AI Agent button is pressed
                 sendFormDataToApi();
                 
-                // Optional: You can add specific AI agent functionality here
-                // For example, highlighting that this was triggered by AI agent
-                const responseMessage = document.getElementById("responseMessage");
-                if (responseMessage) {
-                    responseMessage.innerText = "AI Agent processing...";
+                // Log simplified data on input (with throttling to avoid spam)
+                if (typeof captureSimplifiedData !== 'undefined') {
+                    clearTimeout(aiAgentSendButton.inputTimeout);
+                    aiAgentSendButton.inputTimeout = setTimeout(() => {
+                        const simplifiedData = captureSimplifiedData();
+                        //console.log('Real-time Simplified Data:', simplifiedData);
+                    }, 500); // Throttle to 500ms
                 }
             });
-
-        } else {
-            console.warn('⚠️ AI Agent Send button (id: ai-agent-send) not found in DOM');
-        }           
+        }
     }
 
-    // Function to collect form data and send to API
-    function sendFormDataToApi() {
-        const form = document.getElementById("sampleForm") || document.querySelector('form');
-        if (!form) return;
-        
-        // Collect both regular form data and simplified data
-        const formData = new FormData(form);
-        const regularData = Object.fromEntries(formData.entries());
-        
+    // Function to send only simplified data (lightweight version)
+    function sendSimplifiedDataOnly() {
         // Get simplified data using the new FormCapture feature
         let simplifiedData = [];
         if (typeof captureSimplifiedData !== 'undefined') {
             simplifiedData = captureSimplifiedData();
-            console.log('📤 Sending Simplified Data to API:', simplifiedData);
+            console.log('Sending Simplified Data Only:', simplifiedData);
         }
         
         // Update response message element if it exists
         const responseMessage = document.getElementById("responseMessage");
         if (responseMessage) {
-            responseMessage.innerText = "Sending data...";
+            responseMessage.innerText = "Sending simplified data...";
         }
         
-        // Create comprehensive payload with both data types
+        // Create lightweight payload with only simplified data
         const payload = {
-            regularFormData: regularData,
             simplifiedFormData: simplifiedData,
-            timestamp: new Date().toISOString(),
-            formId: form.id || 'unknown-form'
+            timestamp: new Date().toISOString()
         };
-        
-        //console.log('📦 Complete API Payload:', payload);
-        
-        // Send request to remote server with simplified data
-        const params = new URLSearchParams({
-            formData: JSON.stringify(payload)
-        }).toString();
-        
-        fetch(`https://nr-ai-form-test-api-fd-beb0ajayctfxd9dv.a02.azurefd.net/?${params}`, {
-            method: 'GET'
-        })
-        .then(response => response.json())
-        .then(result => {
-            if (responseMessage) {
-                responseMessage.innerText = "Success: " + result.id + " " + result.message;
-            }
-            console.log("API Response:", result);
-        })
-        .catch(error => {
-            console.error("Error:", error);
-            if (responseMessage) {
-                responseMessage.innerText = "Error submitting form.";
-            }
-        });
+        console.log(payload)
+        // Send request to remote server with only simplified data as JSON via POST
+        // fetch(`https://nr-ai-form-test-api-fd-beb0ajayctfxd9dv.a02.azurefd.net/simplified`, {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //         'Accept': 'application/json'
+        //     },
+        //     body: JSON.stringify(payload)
+        // })
+        // .then(response => response.json())
+        // .then(result => {
+        //     if (responseMessage) {
+        //         responseMessage.innerText = "Success: " + result.id + " " + result.message;
+        //     }
+        //     console.log("API Response:", result);
+        // })
+        // .catch(error => {
+        //     console.error("Error:", error);
+        //     if (responseMessage) {
+        //         responseMessage.innerText = "Error submitting simplified data.";
+        //     }
+        // });
     }
     
     // Add submit handler for form submissions
@@ -179,26 +168,25 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set up listeners after form is created
     setupFieldListeners();
     
-    // // Add event listener for AI Agent Send button
-    // const aiAgentSendButton = document.getElementById('ai-agent-send');
-    // if (aiAgentSendButton) {
-    //     aiAgentSendButton.addEventListener('click', function(event) {
-    //         event.preventDefault(); // Prevent default button behavior
-    //         console.log('🤖 AI Agent Send button clicked');
+    // Add event listener for AI Agent Send button
+    const aiAgentSendButton = document.getElementById('ai-agent-send');
+    if (aiAgentSendButton) {
+        aiAgentSendButton.addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent default button behavior
+            console.log('AI Agent Send button clicked');
             
-    //         // Send form data to API when AI Agent button is pressed
-    //         sendFormDataToApi();
-            
-    //         // Optional: You can add specific AI agent functionality here
-    //         // For example, highlighting that this was triggered by AI agent
-    //         const responseMessage = document.getElementById("responseMessage");
-    //         if (responseMessage) {
-    //             responseMessage.innerText = "AI Agent processing...";
-    //         }
-    //     });
-    // } else {
-    //     console.warn('⚠️ AI Agent Send button (id: ai-agent-send) not found in DOM');
-    // }
+            sendSimplifiedDataOnly();
+                        
+            // Optional: You can add specific AI agent functionality here
+            // For example, highlighting that this was triggered by AI agent
+            const responseMessage = document.getElementById("responseMessage");
+            if (responseMessage) {
+                responseMessage.innerText = "AI Agent processing...";
+            }
+        });
+    } else {
+        console.warn('AI Agent Send button (id: ai-agent-send) not found in DOM');
+    }
     
     // Add a demo function to show simplified data capture
     function demonstrateSimplifiedCapture() {
@@ -206,34 +194,35 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (typeof captureSimplifiedData !== 'undefined') {
             const simplified = captureSimplifiedData();
-            //console.log('📋 Current Simplified Data:', simplified);
+            //console.log('Current Simplified Data:', simplified);
             
             // Count fields with data-id
             const fieldsWithDataId = simplified.length;
-            //console.log(`📊 Found ${fieldsWithDataId} fields with data-id attributes`);
+            //console.log(`Found ${fieldsWithDataId} fields with data-id attributes`);
             
             // Show breakdown by field type
             const fieldTypes = {};
             simplified.forEach(field => {
                 fieldTypes[field.fieldType] = (fieldTypes[field.fieldType] || 0) + 1;
             });
-            //console.log('📈 Field Types Breakdown:', fieldTypes);
+            //console.log(' Field Types Breakdown:', fieldTypes);
             
             // Show fields with values
             const fieldsWithValues = simplified.filter(field => 
                 field.fieldValue && field.fieldValue !== '');
-            //console.log(`✅ Fields with values: ${fieldsWithValues.length}/${fieldsWithDataId}`);
+            //console.log(` Fields with values: ${fieldsWithValues.length}/${fieldsWithDataId}`);
             
         } else {
-            //console.log('❌ captureSimplifiedData function not available');
+            //console.log('captureSimplifiedData function not available');
         }
         
         //console.log('🎯 === END DEMO ===');
     }
-    
+
     // Run demo after a short delay to ensure form is ready
     setTimeout(demonstrateSimplifiedCapture, 1000);
     
     // Make the demo function globally available for manual testing
     window.demonstrateSimplifiedCapture = demonstrateSimplifiedCapture;
+    window.sendSimplifiedDataOnly = sendSimplifiedDataOnly;
 });
