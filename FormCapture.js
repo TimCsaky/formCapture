@@ -343,7 +343,42 @@
      */
     captureSimplifiedData: function() {
       const fullFormData = this.captureAllForms();
-      return this.extractSimplifiedFields(fullFormData);
+      const simplifiedData = [];
+      const seenDataIds = new Set(); // Track duplicate data-ids
+      
+      fullFormData.forEach(formData => {
+        if (formData.fields && Array.isArray(formData.fields)) {
+          formData.fields.forEach(field => {
+            // Only process fields that have a data-id attribute
+            if (field.attributes && field.attributes['data-id']) {
+              const dataId = field.attributes['data-id'];
+              
+              // Skip if we've already seen this data-id (remove duplicates)
+              if (seenDataIds.has(dataId)) {
+                return;
+              }
+              
+              // For radio type fields, only include if fieldValue is not empty
+              if (field.fieldType === 'radio' && (!field.fieldValue || field.fieldValue === '')) {
+                return;
+              }
+              
+              // Create simplified field object in the requested format
+              const simplifiedField = {
+                "data-id": dataId,
+                "fieldLabel": field.fieldLabel || '',
+                "fieldType": field.fieldType,
+                "fieldValue": field.fieldValue || ''
+              };
+              
+              simplifiedData.push(simplifiedField);
+              seenDataIds.add(dataId); // Mark this data-id as seen
+            }
+          });
+        }
+      });
+      
+      return simplifiedData;
     }
   };
 
