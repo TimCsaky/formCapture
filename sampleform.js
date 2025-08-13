@@ -90,6 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
     // Function to collect form data and send to API
     function sendFormDataToApi() {
         const form = document.getElementById("sampleForm") || document.querySelector('form');
