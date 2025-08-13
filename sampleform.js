@@ -106,6 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     responseMessage.innerText = "AI Agent processing...";
                 }
             });
+
         } else {
             console.warn('⚠️ AI Agent Send button (id: ai-agent-send) not found in DOM');
         }           
