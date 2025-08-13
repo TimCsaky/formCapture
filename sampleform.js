@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const simplifiedData = FormCapture.extractSimplifiedFields(formsData);
                 
                 // Log both full and simplified data to console
-                console.log('📊 Full Form Data Captured:', formData);
+                //console.log('📊 Full Form Data Captured:', formData);
                 console.log('📋 Simplified Data (data-id fields only):', simplifiedData);
                 
                 // Display captured data in the output div
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Log the initial simplified data on load
         setTimeout(() => {
             const initialSimplifiedData = captureSimplifiedData();
-            console.log('🚀 Initial Simplified Data on Load:', initialSimplifiedData);
+            //console.log('🚀 Initial Simplified Data on Load:', initialSimplifiedData);
         }, 500);
     }
     
@@ -52,12 +52,12 @@ document.addEventListener('DOMContentLoaded', function() {
         formFields.forEach(field => {
             // Log when typing finishes (field loses focus) and send data to API
             field.addEventListener('blur', function() {
-                console.log(`👤 User finished typing in field: ${field.name || field.id}`);
+                //console.log(` User finished typing in field: ${field.name || field.id}`);
                 
                 // Capture and log simplified data on blur event
                 if (typeof captureSimplifiedData !== 'undefined') {
                     const simplifiedData = captureSimplifiedData();
-                    console.log('📝 Simplified Data on Blur:', simplifiedData);
+                    //console.log('📝 Simplified Data on Blur:', simplifiedData);
                 }
                 
                 // Get all form data and send to API when any field loses focus
@@ -66,31 +66,40 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Also add input event listener for real-time logging
             field.addEventListener('input', function() {
-                console.log(`⌨️  User typing in field: ${field.name || field.id}, value: ${field.value}`);
+                //console.log(`⌨️  User typing in field: ${field.name || field.id}, value: ${field.value}`);
                 
                 // Log simplified data on input (with throttling to avoid spam)
                 if (typeof captureSimplifiedData !== 'undefined') {
                     clearTimeout(field.inputTimeout);
                     field.inputTimeout = setTimeout(() => {
                         const simplifiedData = captureSimplifiedData();
-                        console.log('🔄 Real-time Simplified Data:', simplifiedData);
+                        //console.log('🔄 Real-time Simplified Data:', simplifiedData);
                     }, 500); // Throttle to 500ms
                 }
             });
             
             // Add change event listener for select elements and checkboxes/radios
             field.addEventListener('change', function() {
-                console.log(`🔄 Field changed: ${field.name || field.id}, new value: ${field.value}`);
+                //console.log(`🔄 Field changed: ${field.name || field.id}, new value: ${field.value}`);
                 
                 // Capture and log simplified data on change
                 if (typeof captureSimplifiedData !== 'undefined') {
                     const simplifiedData = captureSimplifiedData();
-                    console.log('📊 Simplified Data on Change:', simplifiedData);
+                    //console.log('📊 Simplified Data on Change:', simplifiedData);
                 }
             });
         });
     }
-    
+    const aiAgentSendButton = document.getElementById('ai-agent-send');
+
+// Add event listener for AI Agent send button
+    if (aiAgentSendButton) {
+        aiAgentSendButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            console.log('AI Assistant send button clicked');
+        });
+
+    }    
     // Function to collect form data and send to API
     function sendFormDataToApi() {
         const form = document.getElementById("sampleForm") || document.querySelector('form');
@@ -121,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
             formId: form.id || 'unknown-form'
         };
         
-        console.log('📦 Complete API Payload:', payload);
+        //console.log('📦 Complete API Payload:', payload);
         
         // Send request to remote server with simplified data
         const params = new URLSearchParams({
@@ -164,29 +173,29 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (typeof captureSimplifiedData !== 'undefined') {
             const simplified = captureSimplifiedData();
-            console.log('📋 Current Simplified Data:', simplified);
+            //console.log('📋 Current Simplified Data:', simplified);
             
             // Count fields with data-id
             const fieldsWithDataId = simplified.length;
-            console.log(`📊 Found ${fieldsWithDataId} fields with data-id attributes`);
+            //console.log(`📊 Found ${fieldsWithDataId} fields with data-id attributes`);
             
             // Show breakdown by field type
             const fieldTypes = {};
             simplified.forEach(field => {
                 fieldTypes[field.fieldType] = (fieldTypes[field.fieldType] || 0) + 1;
             });
-            console.log('📈 Field Types Breakdown:', fieldTypes);
+            //console.log('📈 Field Types Breakdown:', fieldTypes);
             
             // Show fields with values
             const fieldsWithValues = simplified.filter(field => 
                 field.fieldValue && field.fieldValue !== '');
-            console.log(`✅ Fields with values: ${fieldsWithValues.length}/${fieldsWithDataId}`);
+            //console.log(`✅ Fields with values: ${fieldsWithValues.length}/${fieldsWithDataId}`);
             
         } else {
-            console.log('❌ captureSimplifiedData function not available');
+            //console.log('❌ captureSimplifiedData function not available');
         }
         
-        console.log('🎯 === END DEMO ===');
+        //console.log('🎯 === END DEMO ===');
     }
     
     // Run demo after a short delay to ensure form is ready
