@@ -49,47 +49,48 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add event listeners to form fields
     function setupFieldListeners() {
         const formFields = document.querySelectorAll('input, select, textarea');
-        formFields.forEach(field => {
-            // Log when typing finishes (field loses focus) and send data to API
-            field.addEventListener('blur', function() {
-                //console.log(` User finished typing in field: ${field.name || field.id}`);
+        // formFields.forEach(field => {
+        //     // Log when typing finishes (field loses focus) and send data to API
+        //     field.addEventListener('blur', function() {
+        //         //console.log(` User finished typing in field: ${field.name || field.id}`);
                 
-                // Capture and log simplified data on blur event
-                if (typeof captureSimplifiedData !== 'undefined') {
-                    const simplifiedData = captureSimplifiedData();
-                    //console.log('📝 Simplified Data on Blur:', simplifiedData);
-                }
+        //         // Capture and log simplified data on blur event
+        //         if (typeof captureSimplifiedData !== 'undefined') {
+        //             const simplifiedData = captureSimplifiedData();
+        //             //console.log('📝 Simplified Data on Blur:', simplifiedData);
+        //         }
                 
-                // Get all form data and send to API when any field loses focus
-                sendFormDataToApi();
-            });
+        //         // Get all form data and send to API when any field loses focus
+        //         sendFormDataToApi();
+        //     });
             
-            // Also add input event listener for real-time logging
-            field.addEventListener('input', function() {
-                //console.log(`⌨️  User typing in field: ${field.name || field.id}, value: ${field.value}`);
+        //     // Also add input event listener for real-time logging
+        //     field.addEventListener('input', function() {
+        //         //console.log(`⌨️  User typing in field: ${field.name || field.id}, value: ${field.value}`);
                 
-                // Log simplified data on input (with throttling to avoid spam)
-                if (typeof captureSimplifiedData !== 'undefined') {
-                    clearTimeout(field.inputTimeout);
-                    field.inputTimeout = setTimeout(() => {
-                        const simplifiedData = captureSimplifiedData();
-                        //console.log('🔄 Real-time Simplified Data:', simplifiedData);
-                    }, 500); // Throttle to 500ms
-                }
-            });
+        //         // Log simplified data on input (with throttling to avoid spam)
+        //         if (typeof captureSimplifiedData !== 'undefined') {
+        //             clearTimeout(field.inputTimeout);
+        //             field.inputTimeout = setTimeout(() => {
+        //                 const simplifiedData = captureSimplifiedData();
+        //                 //console.log('🔄 Real-time Simplified Data:', simplifiedData);
+        //             }, 500); // Throttle to 500ms
+        //         }
+        //     });
             
-            // Add change event listener for select elements and checkboxes/radios
-            field.addEventListener('change', function() {
-                //console.log(`🔄 Field changed: ${field.name || field.id}, new value: ${field.value}`);
+        //     // Add change event listener for select elements and checkboxes/radios
+        //     field.addEventListener('change', function() {
+        //         //console.log(`🔄 Field changed: ${field.name || field.id}, new value: ${field.value}`);
                 
-                // Capture and log simplified data on change
-                if (typeof captureSimplifiedData !== 'undefined') {
-                    const simplifiedData = captureSimplifiedData();
-                    //console.log('📊 Simplified Data on Change:', simplifiedData);
-                }
-            });
-        });
-        const aiAgentSendButton = document.getElementById('ai-agent-send');     
+        //         // Capture and log simplified data on change
+        //         if (typeof captureSimplifiedData !== 'undefined') {
+        //             const simplifiedData = captureSimplifiedData();
+        //             //console.log('📊 Simplified Data on Change:', simplifiedData);
+        //         }
+        //     });
+        // });
+        const aiAgentSendButton = document.getElementById('ai-agent-send');
+        console.log(aiAgentSendButton)     
         if (aiAgentSendButton) {
             aiAgentSendButton.addEventListener('click', function(event) {
                 event.preventDefault(); // Prevent default button behavior
@@ -105,6 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     responseMessage.innerText = "AI Agent processing...";
                 }
             });
+
         } else {
             console.warn('⚠️ AI Agent Send button (id: ai-agent-send) not found in DOM');
         }           
