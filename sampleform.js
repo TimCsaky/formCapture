@@ -90,7 +90,16 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-    
+    const aiAgentSendButton = document.getElementById('ai-agent-send');
+
+// Add event listener for AI Agent send button
+    if (aiAgentSendButton) {
+        aiAgentSendButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            console.log('AI Assistant send button clicked');
+        });
+
+    }    
     // Function to collect form data and send to API
     function sendFormDataToApi() {
         const form = document.getElementById("sampleForm") || document.querySelector('form');
