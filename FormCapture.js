@@ -322,6 +322,11 @@
           formData.fields.forEach(field => {
             // Only process fields that have a data-id attribute
             if (field.attributes && field.attributes['data-id']) {
+              // For radio type fields, only include if fieldValue is not empty
+              if (field.fieldType === 'radio' && (!field.fieldValue || field.fieldValue === '')) {
+                return;
+              }
+              
               const simplifiedField = {
                 'data-id': field.attributes['data-id'],
                 fieldType: field.fieldType,

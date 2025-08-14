@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('🤖 AI Agent Send button clicked');
                 
                 // Send form data to API when AI Agent button is pressed
-                sendFormDataToApi();
+                sendSimplifiedDataOnly();
                 
                 // Log simplified data on input (with throttling to avoid spam)
                 if (typeof captureSimplifiedData !== 'undefined') {
@@ -126,34 +126,74 @@ document.addEventListener('DOMContentLoaded', function() {
             responseMessage.innerText = "Sending simplified data...";
         }
         
-        // Create lightweight payload with only simplified data
+        // Get AI Agent input message
+        let aiMessage = '';
+        const aiAgentSendButton = document.getElementById('ai-agent-send');
+        if (aiAgentSendButton) {
+            const aiAgentInput = aiAgentSendButton.previousElementSibling;
+            if (aiAgentInput && aiAgentInput.tagName === 'INPUT') {
+                aiMessage = aiAgentInput.value || '';
+                console.log('🎯 AI Agent Input Value:', aiMessage);
+            } else {
+                // Alternative method: look for input in the same container
+                const inputArea = aiAgentSendButton.closest('.input-area');
+                if (inputArea) {
+                    const textInput = inputArea.querySelector('input[type="text"]');
+                    if (textInput) {
+                        aiMessage = textInput.value || '';
+                        console.log('🎯 AI Agent Input Value:', aiMessage);
+                    }
+                }
+            }
+        }
+        
+        // Transform simplified data to match the required format (change "data-id" to "data_id")
+        const formFields = simplifiedData.map(field => ({
+            data_id: field['data-id'],
+            fieldLabel: field.fieldLabel,
+            fieldType: field.fieldType,
+            fieldValue: field.fieldValue
+        }));
+        
+        // Create payload in the specified format
         const payload = {
-            simplifiedFormData: simplifiedData,
-            timestamp: new Date().toISOString()
+            message: aiMessage,
+            formFields: formFields,
+            data: {
+                timestamp: new Date().toISOString(),
+                formId: document.querySelector('form')?.id || 'unknown-form',
+                pageUrl: window.location.href
+            },
+            metadata: {
+                source: 'ai-agent-send',
+                captureMethod: 'FormCapture.js',
+                totalFields: formFields.length
+            }
         };
-        console.log(payload)
+        
+        console.log('New Payload Format:', payload)
         // Send request to remote server with only simplified data as JSON via POST
-        // fetch(`https://nr-ai-form-test-api-fd-beb0ajayctfxd9dv.a02.azurefd.net/simplified`, {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //         'Accept': 'application/json'
-        //     },
-        //     body: JSON.stringify(payload)
-        // })
-        // .then(response => response.json())
-        // .then(result => {
-        //     if (responseMessage) {
-        //         responseMessage.innerText = "Success: " + result.id + " " + result.message;
-        //     }
-        //     console.log("API Response:", result);
-        // })
-        // .catch(error => {
-        //     console.error("Error:", error);
-        //     if (responseMessage) {
-        //         responseMessage.innerText = "Error submitting simplified data.";
-        //     }
-        // });
+        fetch(`https://nr-ai-form-dev-api-fd-atambqdccsagafbt.a01.azurefd.net/api/v1/orchestrator/process`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (responseMessage) {
+                responseMessage.innerText = "Success: " + result.id + " " + result.message;
+            }
+            console.log("API Response:", result);
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            if (responseMessage) {
+                responseMessage.innerText = "Error submitting simplified data.";
+            }
+        });
     }
     
     // Add submit handler for form submissions
@@ -173,7 +213,24 @@ document.addEventListener('DOMContentLoaded', function() {
     if (aiAgentSendButton) {
         aiAgentSendButton.addEventListener('click', function(event) {
             event.preventDefault(); // Prevent default button behavior
-            console.log('AI Agent Send button clicked');
+            console.log('🤖 AI Agent Send button clicked');
+            
+            // Capture the AI agent input value
+            const aiAgentInput = aiAgentSendButton.previousElementSibling;
+            if (aiAgentInput && aiAgentInput.tagName === 'INPUT') {
+                console.log('🎯 AI Agent Input Value:', aiAgentInput.value);
+                console.log('🎯 AI Agent Input Placeholder:', aiAgentInput.placeholder);
+            } else {
+                // Alternative method: look for input in the same container
+                const inputArea = aiAgentSendButton.closest('.input-area');
+                if (inputArea) {
+                    const textInput = inputArea.querySelector('input[type="text"]');
+                    if (textInput) {
+                        console.log('🎯 AI Agent Input Value:', textInput.value);
+                        console.log('🎯 AI Agent Input Placeholder:', textInput.placeholder);
+                    }
+                }
+            }
             
             sendSimplifiedDataOnly();
                         
