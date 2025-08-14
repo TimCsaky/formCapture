@@ -12,6 +12,7 @@ div#ai-agent {
   font-family: Arial, sans-serif;
   overflow: hidden;
   z-index: 9999; 
+  resize: both;  
 }
 
 
