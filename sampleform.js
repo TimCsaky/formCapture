@@ -19,8 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const simplifiedData = FormCapture.extractSimplifiedFields(formsData);
                 
                 // Log both full and simplified data to console
-                //console.log('📊 Full Form Data Captured:', formData);
-                console.log('📋 Simplified Data (data-id fields only):', simplifiedData);
+                console.log('Simplified Data (data-id fields only):', simplifiedData);
                 
                 // Display captured data in the output div
                 const outputElement = document.getElementById('outputData');
@@ -94,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (aiAgentSendButton) {
             aiAgentSendButton.addEventListener('click', function(event) {
                 event.preventDefault(); // Prevent default button behavior
-                console.log('🤖 AI Agent Send button clicked');
+                console.log('AI Agent Send button clicked');
                 
                 // Send form data to API when AI Agent button is pressed
                 sendSimplifiedDataOnly();
@@ -133,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const aiAgentInput = aiAgentSendButton.previousElementSibling;
             if (aiAgentInput && aiAgentInput.tagName === 'INPUT') {
                 aiMessage = aiAgentInput.value || '';
-                console.log('🎯 AI Agent Input Value:', aiMessage);
+                console.log('AI Agent Input Value:', aiMessage);
             } else {
                 // Alternative method: look for input in the same container
                 const inputArea = aiAgentSendButton.closest('.input-area');
@@ -141,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const textInput = inputArea.querySelector('input[type="text"]');
                     if (textInput) {
                         aiMessage = textInput.value || '';
-                        console.log('🎯 AI Agent Input Value:', aiMessage);
+                        console.log('AI Agent Input Value:', aiMessage);
                     }
                 }
             }
@@ -172,6 +171,48 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         
         console.log('New Payload Format:', payload)
+        
+        // Update the div with class 'message user' to show what user typed
+        const userMessageDiv = document.querySelector('.message.user');
+        if (userMessageDiv) {
+            let userFormattedMessage = '';
+            
+            // Add user's message if provided
+            if (aiMessage) {
+                userFormattedMessage += `💬 ${aiMessage}\n\n`;
+            }
+            
+            // Add form fields information
+            if (formFields && formFields.length > 0) {
+                userFormattedMessage += `📋 Form Data (${formFields.length} fields):\n`;
+                formFields.forEach((field, index) => {
+                    userFormattedMessage += `\n${index + 1}. ${field.data_id || 'Unknown Field'}\n`;
+                    if (field.fieldLabel) {
+                        userFormattedMessage += `   Label: ${field.fieldLabel}\n`;
+                    }
+                    userFormattedMessage += `   Type: ${field.fieldType}\n`;
+                    if (field.fieldValue) {
+                        userFormattedMessage += `   Value: ${field.fieldValue}\n`;
+                    } else {
+                        userFormattedMessage += `   Value: (empty)\n`;
+                    }
+                });
+            } else {
+                userFormattedMessage += `📋 No form fields with data-id attributes found`;
+            }
+            
+            // Set the formatted text with proper line breaks
+            userMessageDiv.style.whiteSpace = 'pre-wrap';
+            userMessageDiv.textContent = userFormattedMessage || 'No message or form data provided';
+            
+            console.log('💬 Updated user message div with message and form fields:', {
+                message: aiMessage,
+                formFieldsCount: formFields.length
+            });
+        } else {
+            console.warn('⚠️ User message div (.message.user) not found in DOM');
+        }
+        
         // Send request to remote server with only simplified data as JSON via POST
         fetch(`https://nr-ai-form-dev-api-fd-atambqdccsagafbt.a01.azurefd.net/api/v1/orchestrator/process`, {
             method: 'POST',
@@ -181,15 +222,114 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify(payload)
         })
-        .then(response => response.json())
-        .then(result => {
-            if (responseMessage) {
-                responseMessage.innerText = "Success: " + result.id + " " + result.message;
+        .then(response => {
+            if (!response.ok) {
+                // Handle HTTP error responses
+                return response.json().then(errorData => {
+                    throw errorData;
+                });
             }
+            return response.json();
+        })
+        .then(result => {
+            // Check if the result contains validation errors
+            if (result.detail && Array.isArray(result.detail)) {
+                // This is a validation error response, treat it as an error
+                throw result;
+            }
+            
+            if (responseMessage) {
+                responseMessage.innerText = "Success: " + (result.id || '') + " " + (result.message || '');
+            }
+            
+            // Update the div with class 'message bot' with the response
+            const botMessageDiv = document.querySelector('.message.bot');
+            if (botMessageDiv) {
+                // Create nicely formatted response text
+                let formattedResponse = '';
+                
+                if (result.message) {
+                    formattedResponse += `${result.message}\n\n`;
+                }
+                
+                if (result.data) {
+                    formattedResponse += `📊 Data:\n`;
+                    
+                    // Display additionalProp1 if it exists
+                    if (result.data.additionalProp1) {
+                        formattedResponse += `• Additional Property: ${JSON.stringify(result.data.additionalProp1, null, 2)}\n`;
+                    }
+                    
+                    // Display other data properties
+                    Object.keys(result.data).forEach(key => {
+                        if (key !== 'additionalProp1') {
+                            const value = result.data[key];
+                            if (typeof value === 'object') {
+                                formattedResponse += `• ${key}: ${JSON.stringify(value, null, 2)}\n`;
+                            } else {
+                                formattedResponse += `• ${key}: ${value}\n`;
+                            }
+                        }
+                    });
+                }
+                
+                if (result.status) {
+                    formattedResponse += `\n✅ Status: ${result.status}`;
+                }
+                
+                if (result.timestamp) {
+                    formattedResponse += `\n🕒 Timestamp: ${result.timestamp}`;
+                }
+                
+                // Set the formatted text (preserve line breaks with white-space: pre-wrap in CSS)
+                botMessageDiv.style.whiteSpace = 'pre-wrap';
+                botMessageDiv.textContent = formattedResponse || 'Response received successfully';
+                
+                console.log('🤖 Updated bot message div with formatted response:', result);
+            } else {
+                console.warn('⚠️ Bot message div (.message.bot) not found in DOM');
+            }
+            
             console.log("API Response:", result);
         })
         .catch(error => {
             console.error("Error:", error);
+            
+            // Update the div with class 'message bot' with error information
+            const botMessageDiv = document.querySelector('.message.bot');
+            if (botMessageDiv) {
+                let errorMessage = '❌ Error occurred while processing your request:\n\n';
+                
+                // Check if it's a validation error with detail array
+                if (error.detail && Array.isArray(error.detail)) {
+                    errorMessage += '🔍 Validation Errors:\n';
+                    error.detail.forEach((validationError, index) => {
+                        errorMessage += `\n${index + 1}. `;
+                        if (validationError.msg) {
+                            errorMessage += `${validationError.msg}\n`;
+                        }
+                        if (validationError.loc && Array.isArray(validationError.loc)) {
+                            errorMessage += `   Location: ${validationError.loc.join(' → ')}\n`;
+                        }
+                        if (validationError.type) {
+                            errorMessage += `   Type: ${validationError.type}\n`;
+                        }
+                    });
+                } else if (error.message) {
+                    // Standard error message
+                    errorMessage += `💬 ${error.message}`;
+                } else {
+                    // Generic error
+                    errorMessage += '💬 An unexpected error occurred. Please try again.';
+                }
+                
+                // Set the formatted error text
+                botMessageDiv.style.whiteSpace = 'pre-wrap';
+                botMessageDiv.textContent = errorMessage;
+                
+                console.log('🤖 Updated bot message div with error:', error);
+            }
+            
             if (responseMessage) {
                 responseMessage.innerText = "Error submitting simplified data.";
             }
@@ -213,21 +353,21 @@ document.addEventListener('DOMContentLoaded', function() {
     if (aiAgentSendButton) {
         aiAgentSendButton.addEventListener('click', function(event) {
             event.preventDefault(); // Prevent default button behavior
-            console.log('🤖 AI Agent Send button clicked');
+            console.log('AI Agent Send button clicked');
             
             // Capture the AI agent input value
             const aiAgentInput = aiAgentSendButton.previousElementSibling;
             if (aiAgentInput && aiAgentInput.tagName === 'INPUT') {
-                console.log('🎯 AI Agent Input Value:', aiAgentInput.value);
-                console.log('🎯 AI Agent Input Placeholder:', aiAgentInput.placeholder);
+                console.log('AI Agent Input Value:', aiAgentInput.value);
+                console.log('AI Agent Input Placeholder:', aiAgentInput.placeholder);
             } else {
                 // Alternative method: look for input in the same container
                 const inputArea = aiAgentSendButton.closest('.input-area');
                 if (inputArea) {
                     const textInput = inputArea.querySelector('input[type="text"]');
                     if (textInput) {
-                        console.log('🎯 AI Agent Input Value:', textInput.value);
-                        console.log('🎯 AI Agent Input Placeholder:', textInput.placeholder);
+                        console.log('AI Agent Input Value:', textInput.value);
+                        console.log('AI Agent Input Placeholder:', textInput.placeholder);
                     }
                 }
             }
@@ -247,7 +387,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Add a demo function to show simplified data capture
     function demonstrateSimplifiedCapture() {
-        console.log('🎯 === SIMPLIFIED DATA CAPTURE DEMO ===');
+
         
         if (typeof captureSimplifiedData !== 'undefined') {
             const simplified = captureSimplifiedData();
@@ -273,7 +413,6 @@ document.addEventListener('DOMContentLoaded', function() {
             //console.log('captureSimplifiedData function not available');
         }
         
-        //console.log('🎯 === END DEMO ===');
     }
 
     // Run demo after a short delay to ensure form is ready
