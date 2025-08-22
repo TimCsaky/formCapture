@@ -349,41 +349,41 @@ document.addEventListener('DOMContentLoaded', function() {
     setupFieldListeners();
     
     // Add event listener for AI Agent Send button
-    const aiAgentSendButton = document.getElementById('ai-agent-send');
-    if (aiAgentSendButton) {
-        aiAgentSendButton.addEventListener('click', function(event) {
-            event.preventDefault(); // Prevent default button behavior
-            console.log('AI Agent Send button clicked');
+    // const aiAgentSendButton = document.getElementById('ai-agent-send');
+    // if (aiAgentSendButton) {
+    //     aiAgentSendButton.addEventListener('click', function(event) {
+    //         event.preventDefault(); // Prevent default button behavior
+    //         console.log('AI Agent Send button clicked');
             
-            // Capture the AI agent input value
-            const aiAgentInput = aiAgentSendButton.previousElementSibling;
-            if (aiAgentInput && aiAgentInput.tagName === 'INPUT') {
-                console.log('AI Agent Input Value:', aiAgentInput.value);
-                console.log('AI Agent Input Placeholder:', aiAgentInput.placeholder);
-            } else {
-                // Alternative method: look for input in the same container
-                const inputArea = aiAgentSendButton.closest('.input-area');
-                if (inputArea) {
-                    const textInput = inputArea.querySelector('input[type="text"]');
-                    if (textInput) {
-                        console.log('AI Agent Input Value:', textInput.value);
-                        console.log('AI Agent Input Placeholder:', textInput.placeholder);
-                    }
-                }
-            }
+    //         // Capture the AI agent input value
+    //         const aiAgentInput = aiAgentSendButton.previousElementSibling;
+    //         if (aiAgentInput && aiAgentInput.tagName === 'INPUT') {
+    //             console.log('AI Agent Input Value:', aiAgentInput.value);
+    //             console.log('AI Agent Input Placeholder:', aiAgentInput.placeholder);
+    //         } else {
+    //             // Alternative method: look for input in the same container
+    //             const inputArea = aiAgentSendButton.closest('.input-area');
+    //             if (inputArea) {
+    //                 const textInput = inputArea.querySelector('input[type="text"]');
+    //                 if (textInput) {
+    //                     console.log('AI Agent Input Value:', textInput.value);
+    //                     console.log('AI Agent Input Placeholder:', textInput.placeholder);
+    //                 }
+    //             }
+    //         }
             
-            sendSimplifiedDataOnly();
+    //         sendSimplifiedDataOnly();
                         
-            // Optional: You can add specific AI agent functionality here
-            // For example, highlighting that this was triggered by AI agent
-            const responseMessage = document.getElementById("responseMessage");
-            if (responseMessage) {
-                responseMessage.innerText = "AI Agent processing...";
-            }
-        });
-    } else {
-        console.warn('AI Agent Send button (id: ai-agent-send) not found in DOM');
-    }
+    //         // Optional: You can add specific AI agent functionality here
+    //         // For example, highlighting that this was triggered by AI agent
+    //         const responseMessage = document.getElementById("responseMessage");
+    //         if (responseMessage) {
+    //             responseMessage.innerText = "AI Agent processing...";
+    //         }
+    //     });
+    // } else {
+    //     console.warn('AI Agent Send button (id: ai-agent-send) not found in DOM');
+    // }
     
     // Add a demo function to show simplified data capture
     function demonstrateSimplifiedCapture() {
