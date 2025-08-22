@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Send request to remote server with only simplified data as JSON via POST
-        fetch(`https://nr-ai-form-dev-api-fd-atambqdccsagafbt.a01.azurefd.net/api/v1/orchestrator/process`, {
+        fetch(`https://nr-ai-form-dev-api-fd-atambqdccsagafbt.a01.azurefd.net/api/process`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
