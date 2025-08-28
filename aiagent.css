@@ -7,7 +7,7 @@ div#ai-agent {
   background: #red;    /* Chat background */
   border-radius: 12px;    /* Rounded corners */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 1); /* Subtle shadow */
-  display: flex;
+  display: none; /* hide initiall. set to `flex` with javascript */
   flex-direction: column;
   font-family: Arial, sans-serif;
   overflow: hidden;
